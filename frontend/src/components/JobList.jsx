@@ -22,7 +22,7 @@ const JobList = () => {
     fetchJobs();
 
     // Set up Socket.IO for real-time job updates
-    const socket = io('http://localhost:5000');
+    const socket = io(import.meta.env.VITE_API_BASE_URL);
 
     socket.on('new_job', (data) => {
       // Add new job to the list
@@ -41,7 +41,7 @@ const JobList = () => {
   const fetchJobs = async () => {
     try {
       // Fetch all jobs for admins, active jobs for others
-      const endpoint = user?.role === 'admin' ? 'http://localhost:5000/api/admin/jobs' : 'http://localhost:5000/api/jobs';
+      const endpoint = user?.role === 'admin' ? `${import.meta.env.VITE_API_BASE_URL}/api/admin/jobs` : `${import.meta.env.VITE_API_BASE_URL}/api/jobs`;
       const response = await axios.get(endpoint, {
         headers: user?.role === 'admin' ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {}
       });
@@ -83,12 +83,12 @@ const JobList = () => {
 
   const approveJob = async (jobId) => {
     try {
-      await axios.post(`http://localhost:5000/api/admin/approve-job/${jobId}`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/admin/approve-job/${jobId}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
       // Emit real-time notification for job approval
-      const socket = io('http://localhost:5000');
+      const socket = io(import.meta.env.VITE_API_BASE_URL);
       socket.emit('job_approved', {
         jobId: jobId,
         approvedAt: new Date()
@@ -105,7 +105,7 @@ const JobList = () => {
   const deleteJob = async (jobId) => {
     if (window.confirm('Are you sure you want to delete this job?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/admin/jobs/${jobId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/admin/jobs/${jobId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         alert('Job deleted successfully!');
@@ -118,12 +118,12 @@ const JobList = () => {
 
   const applyForJob = async (jobId) => {
     try {
-      await axios.post(`http://localhost:5000/api/jobs/apply/${jobId}`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/jobs/apply/${jobId}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
       // Emit real-time notification for job application
-      const socket = io('http://localhost:5000');
+      const socket = io(import.meta.env.VITE_API_BASE_URL);
       socket.emit('job_applied', {
         jobId: jobId,
         appliedAt: new Date()
@@ -144,7 +144,7 @@ const JobList = () => {
     // Check if user has already applied for this job
     if (user?.role === 'candidate') {
       try {
-        const applicationsResponse = await axios.get('http://localhost:5000/api/jobs/applications/my', {
+        const applicationsResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/jobs/applications/my`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         const hasApplied = applicationsResponse.data.some(app => app.job_id._id === job._id);
@@ -166,7 +166,7 @@ const JobList = () => {
 
     setApplying(true);
     try {
-      await axios.post(`http://localhost:5000/api/jobs/apply/${selectedJob._id}`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/jobs/apply/${selectedJob._id}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setHasApplied(true);
