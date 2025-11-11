@@ -42,13 +42,13 @@ const JobPost = () => {
         salary: parseInt(formData.salary)
       };
 
-      const response = await axios.post('http://localhost:5000/api/jobs', jobData);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/jobs`, jobData);
 
       if (response.data.message) {
         setSuccess('Job posted successfully!');
 
         // Emit real-time notification for job posting
-        const socket = io('http://localhost:5000');
+        const socket = io(import.meta.env.VITE_API_BASE_URL);
         socket.emit('job_posted', {
           jobTitle: formData.title,
           job: {
